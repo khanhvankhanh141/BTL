@@ -96,7 +96,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (user && passwordCorrect) {
     const { _id, name, email } = user;
-    res.status(200).json({
+    res.status(201).json({
       _id,
       name,
       email,
@@ -122,7 +122,27 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 // Get User Data
 const getUser = asyncHandler(async (req, res) => {
-  res.send("Get user Data");
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    const { _id, name, email } = user;
+    res.status(200).json({
+      _id,
+      name,
+      email,
+    });
+  } else {
+    res.status(400);
+    throw new Error("User Not Found");
+  }
+});
+
+//Get All Users
+const getAllUsers = asyncHandler(async (req, res) => {});
+
+//Get Login Status
+const loginStatus = asyncHandler(async (req, res) => {
+  res.send("Login Status");
 });
 
 module.exports = {
@@ -130,4 +150,6 @@ module.exports = {
   loginUser,
   logoutUser,
   getUser,
+  getAllUsers,
+  loginStatus,
 };
