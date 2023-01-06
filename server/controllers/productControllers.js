@@ -1,18 +1,11 @@
 const asyncHandler = require("express-async-handler");
 const Product = require("../models/productModel");
+const { fileSizeFormatter } = require("../utils/fileUpload");
+const cloudinary = require("cloudinary").v2;
 
 const createProduct = asyncHandler(async (req, res) => {
-  const {
-    name,
-    sku,
-    category,
-    quantity,
-    price,
-    description,
-    address,
-    status,
-    image,
-  } = req.body;
+  const { name, sku, category, quantity, price, description, address, status } =
+    req.body;
 
   //Validation
   if (
@@ -31,12 +24,25 @@ const createProduct = asyncHandler(async (req, res) => {
 
   // Handle image
   let fileData = {};
+
   if (req.file) {
+    // Sace image to cloudinary
+    let uploadedFile;
+    try {
+      uploadedFile = await cloudinary.uploader.upload(req.file.path, {
+        folder: "BTL App",
+        resource_type: "image",
+      });
+    } catch (error) {
+      res.status(500);
+      throw new Error("Error uploading");
+    }
+
     fileData = {
       fileName: req.file.originalname,
-      filepath: req.file.path,
+      filepath: uploadedFile.secure_url,
       fileType: req.file.mimetype,
-      fileSize: req.file.size,
+      fileSize: fileSizeFormatter(req.file.size, 2),
     };
   }
 
@@ -51,6 +57,7 @@ const createProduct = asyncHandler(async (req, res) => {
     description,
     address,
     status,
+    image: fileData,
   });
 
   res.status(201).json(product);
