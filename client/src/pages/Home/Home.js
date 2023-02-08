@@ -22,6 +22,7 @@ const Home = () => {
               <Link to="/dashboard">Dashboard</Link>
             </button>
           </li>
+          <li></li>
         </ul>
       </nav>
     </div>
